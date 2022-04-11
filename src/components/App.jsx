@@ -53,23 +53,35 @@ export class App extends Component {
         });
     }
 
-    if (page !== prevState.page) {
-      API.fetchImages(query, page)
+    // if (page !== prevState.page) {
+    //   API.fetchImages(query, page)
+    //     .then(response => {
+    //       this.setState({
+    //         images: [...prevState.images, ...response.hits],
+    //         status: Status.RESOLVED,
+    //       });
+    //     })
+    //     .catch(error => {
+    //       console.log(error);
+    //       this.setState({ status: Status.REJECTED });
+    //     });
+    // }
+  }
+
+  handleLoadMore = () => {
+    const { query, page } = this.state;
+    this.setState(prevState => ({ page: (prevState.page += 1) }));
+     API.fetchImages(query, page)
         .then(response => {
-          this.setState({
+          this.setState((prevState) => ({
             images: [...prevState.images, ...response.hits],
             status: Status.RESOLVED,
-          });
+          }));
         })
         .catch(error => {
           console.log(error);
           this.setState({ status: Status.REJECTED });
         });
-    }
-  }
-
-  handleLoadMore = () => {
-    this.setState(prevState => ({ page: (prevState.page += 1) }));
   };
 
   handleSearchSubmit = userQuery => {
