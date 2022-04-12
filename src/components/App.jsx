@@ -54,6 +54,7 @@ export class App extends Component {
     }
 
     if (page !== prevState.page) {
+
       API.fetchImages(query, page)
         .then(response => {
           this.setState({
@@ -69,26 +70,7 @@ export class App extends Component {
   }
 
   handleLoadMore = () => {
-    // const { query, page } = this.state;
     this.setState(prevState => ({ page: (prevState.page += 1) }));
-   
-    //  API.fetchImages(query, page)
-    //     .then(response => {
-    //       this.setState((prevState) =>
-    //       ({
-            
-    //         images: [
-    //           ...prevState.images,
-    //           ...response.hits],
-    //         status: Status.RESOLVED,
-    //         page: (prevState.page += 1),
-    //       })
-    //       );
-    //     })
-    //     .catch(error => {
-    //       console.log(error);
-    //       this.setState({ status: Status.REJECTED });
-    //     });
   };
 
   handleSearchSubmit = userQuery => {
@@ -109,9 +91,9 @@ export class App extends Component {
 
   render() {
     const { images, status, imageId } = this.state;
-    console.log(status);
-    console.log(this.state.page);
-    console.log(images);
+    // console.log(status);
+    // console.log(this.state.page);
+    // console.log(images);
 
     return (
       <>
