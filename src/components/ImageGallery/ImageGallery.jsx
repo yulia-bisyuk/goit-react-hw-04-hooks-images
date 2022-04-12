@@ -4,7 +4,7 @@ import ImageGalleryItem from '../ImageGalleryItem';
 import { ImgGallery } from './ImageGallery.styled';
 
 const ImageGallery = ({ images, onOpenModal }) => {
-  console.log(images);
+
   return (
     <ImgGallery>
       {images.map(image => (
