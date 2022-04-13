@@ -26,13 +26,14 @@ export class App extends Component {
     status: Status.IDLE,
   };
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(_, prevState) {
     const { query, page } = this.state;
 
     if (query !== prevState.query) {
       this.setState({ images: [], status: Status.PENDING });
-
-      API.fetchImages(query, page)
+      //timeout set for spinner appearance;
+      setTimeout(() => {
+        API.fetchImages(query, page)
         .then(response => {
           if (response.hits.length === 0 || query.trim() === '') {
             this.setState({ status: Status.IDLE });
@@ -51,8 +52,9 @@ export class App extends Component {
           console.log(error);
           this.setState({ status: Status.REJECTED });
         });
+      }, 3000);
     }
-
+    
     if (page !== prevState.page) {
 
       API.fetchImages(query, page)
@@ -70,7 +72,26 @@ export class App extends Component {
   }
 
   handleLoadMore = () => {
-    this.setState(prevState => ({ page: (prevState.page += 1) }));
+    this.setState(prevState => ({ page: (prevState.page + 1) }));
+
+    // const { query, page } = this.state;
+    
+    //  API.fetchImages(query, page)
+    //    .then(response => {
+          
+    //       this.setState((prevState) => ({
+    //         page: (prevState.page += 1),
+    //         images: [
+    //           ...prevState.images,
+    //           ...response.hits
+    //         ],
+    //         status: Status.RESOLVED,
+    //       }));
+    //     })
+    //     .catch(error => {
+    //       console.log(error);
+    //       this.setState({ status: Status.REJECTED });
+    //     });
   };
 
   handleSearchSubmit = userQuery => {
@@ -91,9 +112,9 @@ export class App extends Component {
 
   render() {
     const { images, status, imageId } = this.state;
-    // console.log(status);
-    // console.log(this.state.page);
-    // console.log(images);
+    console.log(status);
+    console.log(this.state.page);
+    console.log(images);
 
     return (
       <>
