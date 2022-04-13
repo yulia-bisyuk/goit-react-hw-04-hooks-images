@@ -22,6 +22,7 @@ export class App extends Component {
     page: 1,
     query: '',
     imageId: null,
+    isButtonVisible: false,
     status: Status.IDLE,
   };
 
@@ -33,7 +34,7 @@ export class App extends Component {
       //timeout set for spinner appearance;
       setTimeout(() => {
         API.fetchImages(query, page)
-        .then(response => {
+          .then(response => {
           if (response.hits.length === 0 || query.trim() === '') {
             this.setState({ status: Status.IDLE });
             toast.info('Please, type correct search query', {
@@ -43,6 +44,7 @@ export class App extends Component {
             this.setState({
               page: 1,
               images: [...response.hits],
+              isButtonVisible: true,
               status: Status.RESOLVED,
             });
           }
@@ -61,6 +63,10 @@ export class App extends Component {
             images: [...prevState.images, ...response.hits],
             status: Status.RESOLVED,
           });
+
+          if (response.totalHits < page * 12) {
+            this.setState({isButtonVisible: false})
+          }
         })
         .catch(error => {
           console.log(error);
@@ -89,7 +95,7 @@ export class App extends Component {
   };
 
   render() {
-    const { images, status, imageId } = this.state;
+    const { images, status, imageId, isButtonVisible } = this.state;
 
     return (
       <>
@@ -99,10 +105,7 @@ export class App extends Component {
         {status === 'pending' && <Loader />}
 
         {status === 'resolved' && (
-          <>
             <ImageGallery images={images} onOpenModal={this.handleOpenModal} />
-            <Button onloadMore={this.handleLoadMore} />
-          </>
         )}
 
         {status === 'rejected' && (
@@ -110,6 +113,10 @@ export class App extends Component {
             <NotificationText>Oops...something went wrong...</NotificationText>
           </div>
         )}
+
+        {isButtonVisible && <Button
+          visible={isButtonVisible}
+          onloadMore={this.handleLoadMore} />}
 
         {imageId && (
           <Modal
