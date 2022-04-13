@@ -9,7 +9,6 @@ import Button from './Button';
 import Loader from './Loader';
 import { NotificationText } from './App.styled';
 
-const body = document.querySelector('body');
 const Status = {
   IDLE: 'idle',
   PENDING: 'pending',
@@ -56,7 +55,6 @@ export class App extends Component {
     }
     
     if (page !== prevState.page) {
-
       API.fetchImages(query, page)
         .then(response => {
           this.setState({
@@ -74,24 +72,6 @@ export class App extends Component {
   handleLoadMore = () => {
     this.setState(prevState => ({ page: (prevState.page + 1) }));
 
-    // const { query, page } = this.state;
-    
-    //  API.fetchImages(query, page)
-    //    .then(response => {
-          
-    //       this.setState((prevState) => ({
-    //         page: (prevState.page += 1),
-    //         images: [
-    //           ...prevState.images,
-    //           ...response.hits
-    //         ],
-    //         status: Status.RESOLVED,
-    //       }));
-    //     })
-    //     .catch(error => {
-    //       console.log(error);
-    //       this.setState({ status: Status.REJECTED });
-    //     });
   };
 
   handleSearchSubmit = userQuery => {
@@ -100,21 +80,16 @@ export class App extends Component {
 
   handleOpenModal = e => {
     this.setState({ imageId: e.currentTarget.id });
-    body.style.overflow = 'hidden';
   };
 
   handleCloseModal = e => {
     if (e.target === e.currentTarget || e.code === 'Escape') {
       this.setState({ imageId: null });
-      body.style.overflow = 'auto';
     }
   };
 
   render() {
     const { images, status, imageId } = this.state;
-    console.log(status);
-    console.log(this.state.page);
-    console.log(images);
 
     return (
       <>
