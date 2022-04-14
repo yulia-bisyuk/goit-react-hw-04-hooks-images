@@ -64,7 +64,7 @@ export class App extends Component {
             status: Status.RESOLVED,
           });
 
-          if (response.totalHits < page * 120) {
+          if (response.totalHits < page * 12) {
             this.setState({ isButtonVisible: false })
             toast.info('You\'ve reached the last page of results ', {
               position: 'bottom-center',
