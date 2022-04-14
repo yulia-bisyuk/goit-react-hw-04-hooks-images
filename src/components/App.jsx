@@ -30,7 +30,7 @@ export class App extends Component {
     const { query, page } = this.state;
 
     if (query !== prevState.query) {
-      this.setState({ images: [], status: Status.PENDING });
+      this.setState({ images: [], status: Status.PENDING, isButtonVisible: false });
       //timeout set for spinner appearance;
       setTimeout(() => {
         API.fetchImages(query, page)
@@ -64,8 +64,12 @@ export class App extends Component {
             status: Status.RESOLVED,
           });
 
-          if (response.totalHits < page * 12) {
-            this.setState({isButtonVisible: false})
+          if (response.totalHits < page * 120) {
+            this.setState({ isButtonVisible: false })
+            toast.info('You\'ve reached the last page of results ', {
+              position: 'bottom-center',
+              hideProgressBar: true,
+            });
           }
         })
         .catch(error => {
