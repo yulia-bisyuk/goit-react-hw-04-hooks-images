@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import {useState, useEffect}from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import API from '../helpers/fetch-images-api';
@@ -16,56 +16,50 @@ const Status = {
   REJECTED: 'rejected',
 };
 
-export class App extends Component {
-  state = {
-    images: [],
-    page: 1,
-    query: '',
-    imageId: null,
-    isButtonVisible: false,
-    status: Status.IDLE,
-  };
+export const App = () => {
+  const [images, setImages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState('');
+  const [imageId, setImageId] = useState(null);
+  const [isButtonVisible, setIsButtonVisible] = useState(false);
+  const [status, setStatus] = useState(Status.IDLE);
 
-  componentDidUpdate(_, prevState) {
-    const { query, page } = this.state;
 
-    if (query !== prevState.query) {
-      this.setState({ images: [], status: Status.PENDING, isButtonVisible: false });
-      //timeout set for spinner appearance;
-      setTimeout(() => {
-        API.fetchImages(query, page)
-          .then(response => {
-          if (response.hits.length === 0 || query.trim() === '') {
-            this.setState({ status: Status.IDLE });
-            toast.info('Please, type correct search query', {
-              position: 'top-center',
-            });
-          } else {
-            this.setState({
-              page: 1,
-              images: [...response.hits],
-              isButtonVisible: true,
-              status: Status.RESOLVED,
-            });
-          }
-        })
-        .catch(error => {
-          console.log(error);
-          this.setState({ status: Status.REJECTED });
-        });
-      }, 3000);
-    }
-    
-    if (page !== prevState.page) {
+  useEffect(() => {
+    if (query === '') { return };
+    setImages([]);
+    setStatus(Status.PENDING);
+    setIsButtonVisible(false);
+
+    API.fetchImages(query, 1)
+      .then(response => {
+        if (response.hits.length === 0 || query.trim() === '') {
+          setStatus(Status.IDLE);
+          toast.info('Please, type correct search query', {
+            position: 'top-center',
+          });
+        } else {
+          setImages([...response.hits]);
+          setIsButtonVisible(true);
+          setStatus(Status.RESOLVED);
+        }
+      })
+      .catch(error => {
+        console.log(error);
+        setStatus(Status.REJECTED)
+      });
+  }, [query]);
+
+  useEffect(() => {
+    if (query === '') { return };
+
       API.fetchImages(query, page)
         .then(response => {
-          this.setState({
-            images: [...prevState.images, ...response.hits],
-            status: Status.RESOLVED,
-          });
+          setImages(images => [...images, ...response.hits]);
+          setStatus(Status.RESOLVED)
 
           if (response.totalHits < page * 12) {
-            this.setState({ isButtonVisible: false })
+            setIsButtonVisible(false);
             toast.info('You\'ve reached the last page of results ', {
               position: 'bottom-center',
               hideProgressBar: true,
@@ -74,42 +68,38 @@ export class App extends Component {
         })
         .catch(error => {
           console.log(error);
-          this.setState({ status: Status.REJECTED });
+          setStatus(Status.REJECTED)
         });
-    }
-  }
 
-  handleLoadMore = () => {
-    this.setState(prevState => ({ page: (prevState.page + 1) }));
+  },[page])
 
+  const handleLoadMore = () => {
+    setPage(page => page + 1);
   };
 
-  handleSearchSubmit = userQuery => {
-    this.setState({ query: userQuery });
+  const handleSearchSubmit = userQuery => {
+    setQuery(userQuery);
   };
 
-  handleOpenModal = e => {
-    this.setState({ imageId: e.currentTarget.id });
+  const handleOpenModal = e => {
+    setImageId(e.currentTarget.id)
   };
 
-  handleCloseModal = e => {
+  const handleCloseModal = e => {
     if (e.target === e.currentTarget || e.code === 'Escape') {
-      this.setState({ imageId: null });
+      setImageId(null);
     }
   };
-
-  render() {
-    const { images, status, imageId, isButtonVisible } = this.state;
 
     return (
       <>
         <ToastContainer />
-        <Searchbar onSubmit={this.handleSearchSubmit} />
+        <Searchbar onSubmit={handleSearchSubmit} />
 
         {status === 'pending' && <Loader />}
 
         {status === 'resolved' && (
-            <ImageGallery images={images} onOpenModal={this.handleOpenModal} />
+            <ImageGallery images={images} onOpenModal={handleOpenModal} />
         )}
 
         {status === 'rejected' && (
@@ -120,11 +110,11 @@ export class App extends Component {
 
         {isButtonVisible && <Button
           visible={isButtonVisible}
-          onloadMore={this.handleLoadMore} />}
+          onloadMore={handleLoadMore} />}
 
         {imageId && (
           <Modal
-            onCloseModal={this.handleCloseModal}
+            onCloseModal={handleCloseModal}
             id={imageId}
             images={images}
           />
@@ -132,4 +122,4 @@ export class App extends Component {
       </>
     );
   }
-}
+

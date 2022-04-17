@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { IconContext } from 'react-icons';
 import { ImSearch } from 'react-icons/im';
@@ -9,25 +9,22 @@ import {
   FormInput,
 } from './Searchbar.styled';
 
-class Searchbar extends Component {
-  state = {
-    query: '',
+const Searchbar = ({ onSubmit }) => {
+  const [userQuery, setUserQuery] = useState('');
+  
+  const handleChange = e => {
+    setUserQuery(e.currentTarget.value.toLowerCase());
   };
 
-  handleChange = e => {
-    this.setState({ query: e.currentTarget.value.toLowerCase() });
-  };
-
-  handleSubmit = e => {
+  const handleSubmit = e => {
     e.preventDefault();
-    this.props.onSubmit(this.state.query);
-    this.setState({ query: '' });
-  };
+    onSubmit(userQuery);
+    setUserQuery('');
+  }
 
-  render() {
     return (
       <SearchHeader>
-        <Form onSubmit={this.handleSubmit}>
+        <Form onSubmit={handleSubmit}>
           <IconContext.Provider value={{ color: 'green', size: '24px' }}>
             <SearchButton type="submit">
               <ImSearch />
@@ -35,8 +32,8 @@ class Searchbar extends Component {
           </IconContext.Provider>
 
           <FormInput
-            onChange={this.handleChange}
-            value={this.state.query}
+            onChange={handleChange}
+            value={userQuery}
             type="text"
             autocomplete="off"
             autoFocus
@@ -45,7 +42,7 @@ class Searchbar extends Component {
         </Form>
       </SearchHeader>
     );
-  }
+  
 }
 
 Searchbar.propTypes = {

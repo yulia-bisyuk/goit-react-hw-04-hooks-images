@@ -1,36 +1,35 @@
-import React, { Component } from 'react';
+import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { createPortal } from 'react-dom';
 import { Overlay, ImgModalCard, ModalStyled } from './Modal.styled';
 
-class Modal extends Component {
-  componentDidMount() {
-    window.addEventListener('keydown', this.props.onCloseModal);
-  }
+const Modal = ({ images, id, onCloseModal }) => {
+  
+  useEffect(() => {
+    window.addEventListener('keydown', onCloseModal);
 
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.props.onCloseModal);
-  }
+    return () => {
+      window.removeEventListener('keydown', onCloseModal);
+    }
+  })
 
-  getImgSrc = () => {
-    const { images, id } = this.props;
+  const getImgSrc = () => {
     const clickedImg = images.find(image => image.id === Number(id));
     return clickedImg.largeImageURL;
   };
 
-  render() {
-    const modalRoot = document.querySelector('#modal-root');
+  const modalRoot = document.querySelector('#modal-root');
 
     return createPortal(
-      <Overlay onClick={this.props.onCloseModal}>
+      <Overlay onClick={onCloseModal}>
         <ModalStyled>
-          <ImgModalCard src={this.getImgSrc()} alt="" />
+          <ImgModalCard src={getImgSrc()} alt="" />
         </ModalStyled>
       </Overlay>,
       modalRoot
     );
   }
-}
+
 
 Modal.propTypes = {
   onCloseModal: PropTypes.func.isRequired,
