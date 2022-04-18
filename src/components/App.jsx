@@ -1,4 +1,4 @@
-import {useState, useEffect}from 'react';
+import {useState, useEffect }from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import API from '../helpers/fetch-images-api';
@@ -31,6 +31,8 @@ export const App = () => {
     setStatus(Status.PENDING);
     setIsButtonVisible(false);
 
+
+
     API.fetchImages(query, 1)
       .then(response => {
         if (response.hits.length === 0 || query.trim() === '') {
@@ -50,14 +52,16 @@ export const App = () => {
       });
   }, [query]);
 
-  useEffect(() => {
-    if (query === '') { return };
 
+  useEffect(() => {
+    
+    if (query === '') { return };
+    
       API.fetchImages(query, page)
         .then(response => {
           setImages(images => [...images, ...response.hits]);
-          setStatus(Status.RESOLVED)
-
+          setStatus(Status.RESOLVED);
+        
           if (response.totalHits < page * 12) {
             setIsButtonVisible(false);
             toast.info('You\'ve reached the last page of results ', {
@@ -65,12 +69,11 @@ export const App = () => {
               hideProgressBar: true,
             });
           }
-        })
-        .catch(error => {
+        }).catch(error => {
           console.log(error);
           setStatus(Status.REJECTED)
         });
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   },[page])
 
   const handleLoadMore = () => {
