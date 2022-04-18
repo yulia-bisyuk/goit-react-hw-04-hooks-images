@@ -31,8 +31,6 @@ export const App = () => {
     setStatus(Status.PENDING);
     setIsButtonVisible(false);
 
-
-
     API.fetchImages(query, 1)
       .then(response => {
         if (response.hits.length === 0 || query.trim() === '') {
