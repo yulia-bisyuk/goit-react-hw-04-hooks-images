@@ -1,4 +1,4 @@
-import {useState, useEffect }from 'react';
+import { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import API from '../helpers/fetch-images-api';
@@ -9,7 +9,6 @@ import Button from './Button';
 import Loader from './Loader';
 import { NotificationText } from './App.styled';
 import * as Scroll from 'react-scroll';
-
 
 const Status = {
   IDLE: 'idle',
@@ -27,29 +26,28 @@ export const App = () => {
   const [status, setStatus] = useState(Status.IDLE);
 
   useEffect(() => {
-    if (query === '') { return };
+    if (query === '') {
+      return;
+    }
 
     setStatus(Status.PENDING);
     setIsButtonVisible(false);
 
     API.fetchImages(query, page)
       .then(response => {
-       
         if (response.hits.length === 0 || query.trim() === '') {
           setStatus(Status.IDLE);
           toast.info('Please, type correct search query', {
             position: 'top-center',
           });
-        }
-        else if (response.totalHits < page * 12) {
+        } else if (response.totalHits < page * 12) {
           setIsButtonVisible(false);
           setStatus(Status.RESOLVED);
-            toast.info('You\'ve reached the last page of results ', {
-              position: 'bottom-center',
-              hideProgressBar: true,
-            });
-          }
-        else {
+          toast.info("You've reached the last page of results ", {
+            position: 'bottom-center',
+            hideProgressBar: true,
+          });
+        } else {
           setImages(images => [...images, ...response.hits]);
           setIsButtonVisible(true);
           setStatus(Status.RESOLVED);
@@ -57,7 +55,7 @@ export const App = () => {
       })
       .catch(error => {
         console.log(error);
-        setStatus(Status.REJECTED)
+        setStatus(Status.REJECTED);
       });
   }, [query, page]);
 
@@ -73,7 +71,7 @@ export const App = () => {
   };
 
   const handleOpenModal = e => {
-    setImageId(e.currentTarget.id)
+    setImageId(e.currentTarget.id);
   };
 
   const handleCloseModal = e => {
@@ -82,35 +80,30 @@ export const App = () => {
     }
   };
 
-    return (
-      <>
-        <ToastContainer />
-        <Searchbar onSubmit={handleSearchSubmit} />
+  return (
+    <>
+      <ToastContainer />
+      <Searchbar onSubmit={handleSearchSubmit} />
 
-        {status === 'pending' && <Loader />}
+      {status === 'pending' && <Loader />}
 
-        {status === 'resolved' && (
-            <ImageGallery images={images} onOpenModal={handleOpenModal} />
-        )}
+      {status === 'resolved' && (
+        <ImageGallery images={images} onOpenModal={handleOpenModal} />
+      )}
 
-        {status === 'rejected' && (
-          <div>
-            <NotificationText>Oops...something went wrong...</NotificationText>
-          </div>
-        )}
+      {status === 'rejected' && (
+        <div>
+          <NotificationText>Oops...something went wrong...</NotificationText>
+        </div>
+      )}
 
-        {isButtonVisible && <Button
-          visible={isButtonVisible}
-          onloadMore={handleLoadMore} />}
+      {isButtonVisible && (
+        <Button visible={isButtonVisible} onloadMore={handleLoadMore} />
+      )}
 
-        {imageId && (
-          <Modal
-            onCloseModal={handleCloseModal}
-            id={imageId}
-            images={images}
-          />
-        )}
-      </>
-    );
-  }
-
+      {imageId && (
+        <Modal onCloseModal={handleCloseModal} id={imageId} images={images} />
+      )}
+    </>
+  );
+};
