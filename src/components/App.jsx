@@ -8,6 +8,8 @@ import Modal from './Modal';
 import Button from './Button';
 import Loader from './Loader';
 import { NotificationText } from './App.styled';
+import * as Scroll from 'react-scroll';
+
 
 const Status = {
   IDLE: 'idle',
@@ -24,22 +26,31 @@ export const App = () => {
   const [isButtonVisible, setIsButtonVisible] = useState(false);
   const [status, setStatus] = useState(Status.IDLE);
 
-
   useEffect(() => {
     if (query === '') { return };
-    setImages([]);
+
     setStatus(Status.PENDING);
     setIsButtonVisible(false);
 
-    API.fetchImages(query, 1)
+    API.fetchImages(query, page)
       .then(response => {
+       
         if (response.hits.length === 0 || query.trim() === '') {
           setStatus(Status.IDLE);
           toast.info('Please, type correct search query', {
             position: 'top-center',
           });
-        } else {
-          setImages([...response.hits]);
+        }
+        else if (response.totalHits < page * 12) {
+          setIsButtonVisible(false);
+          setStatus(Status.RESOLVED);
+            toast.info('You\'ve reached the last page of results ', {
+              position: 'bottom-center',
+              hideProgressBar: true,
+            });
+          }
+        else {
+          setImages(images => [...images, ...response.hits]);
           setIsButtonVisible(true);
           setStatus(Status.RESOLVED);
         }
@@ -48,38 +59,17 @@ export const App = () => {
         console.log(error);
         setStatus(Status.REJECTED)
       });
-  }, [query]);
-
-
-  useEffect(() => {
-    
-    if (query === '') { return };
-    
-      API.fetchImages(query, page)
-        .then(response => {
-          setImages(images => [...images, ...response.hits]);
-          setStatus(Status.RESOLVED);
-        
-          if (response.totalHits < page * 12) {
-            setIsButtonVisible(false);
-            toast.info('You\'ve reached the last page of results ', {
-              position: 'bottom-center',
-              hideProgressBar: true,
-            });
-          }
-        }).catch(error => {
-          console.log(error);
-          setStatus(Status.REJECTED)
-        });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[page])
+  }, [query, page]);
 
   const handleLoadMore = () => {
     setPage(page => page + 1);
+    Scroll.animateScroll.scrollToBottom();
   };
 
   const handleSearchSubmit = userQuery => {
     setQuery(userQuery);
+    setImages([]);
+    setPage(1);
   };
 
   const handleOpenModal = e => {
